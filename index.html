@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>QR Code Generator</title>
+  <style>
+    body { font-family: Arial; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+    input, select, button { margin: 5px; padding: 5px; }
+    #qr-code { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>QR Code Generator</h1>
+
+  <!-- Input for text / URL -->
+  <input type="text" id="text" placeholder="Enter URL or text" style="width:300px;">
+  
+  <!-- Dot color -->
+  <input type="color" id="dotColor" value="#000000">
+  <label for="dotColor">Dot Color</label>
+  
+  <!-- Background color -->
+  <input type="color" id="bgColor" value="#ffffff">
+  <label for="bgColor">Background Color</label>
+  
+  <!-- Logo -->
+  <input type="file" id="logoInput" accept="image/*">
+  <label for="logoInput">Logo</label>
+  
+  <button id="generate">Generate QR</button>
+  <button id="download">Download QR</button>
+
+  <div id="qr-code"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
+  <script>
+    const qrCode = new QRCodeStyling({
+      width: 300,
+      height: 300,
+      data: "https://example.com",
+      image: "",
+      dotsOptions: { color: "#000000", type: "rounded" },
+      backgroundOptions: { color: "#ffffff" },
+    });
+
+    document.getElementById("qr-code").appendChild(qrCode._canvas || qrCode._el);
+
+    document.getElementById("generate").addEventListener("click", () => {
+      const text = document.getElementById("text").value;
+      const dotColor = document.getElementById("dotColor").value;
+      const bgColor = document.getElementById("bgColor").value;
+      const logoFile = document.getElementById("logoInput").files[0];
+
+      if (!text) { alert("Enter URL or text"); return; }
+
+      if (logoFile) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          qrCode.update({
+            data: text,
+            dotsOptions: { color: dotColor },
+            backgroundOptions: { color: bgColor },
+            image: e.target.result,
+            imageOptions: { crossOrigin: "anonymous", margin: 5 }
+          });
+        }
+        reader.readAsDataURL(logoFile);
+      } else {
+        qrCode.update({
+          data: text,
+          dotsOptions: { color: dotColor },
+          backgroundOptions: { color: bgColor },
+          image: ""
+        });
+      }
+    });
+
+    document.getElementById("download").addEventListener("click", () => {
+      qrCode.download({ name: "qr-code", extension: "png" });
+    });
+  </script>
+</body>
+</html>
